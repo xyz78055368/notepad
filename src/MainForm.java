@@ -63,7 +63,7 @@ public class MainForm{
         saveFile();
       }
     });
-    m_save.setEnabled(false);
+    m_save.setEnabled(true);
     m_file.add(open);
     m_file.add(m_save);
     mb.add(m_file);
@@ -114,16 +114,24 @@ public class MainForm{
     }
   }
   public void saveFile(){
-    String content = ta.getText();
-    try{
-      CharBuffer cb = CharBuffer.wrap(content.toCharArray());
-      ByteBuffer bb = encoder.encode(cb);
-      raf.setLength(0);
-      fci.write(bb);
-      fci.force(true);
-    }catch(IOException e){
-      e.printStackTrace();
+    if (raf == null){
+
+      //文件不存在,则另存为新文件
+      fd_save.setVisible(true);
+
+    }else {
+      String content = ta.getText();
+      try{
+        CharBuffer cb = CharBuffer.wrap(content.toCharArray());
+        ByteBuffer bb = encoder.encode(cb);
+        raf.setLength(0);
+        fci.write(bb);
+        fci.force(true);
+      }catch(IOException e){
+        e.printStackTrace();
+      }
     }
+
   }
   public void closeFile(){
     try{
