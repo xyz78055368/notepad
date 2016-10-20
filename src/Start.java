@@ -1,8 +1,8 @@
 /**
  * Created by harlan on 2016/10/20.
  */
-public class Test {
+public class Start {
   public static void main(String[] args) {
-    System.out.println("Test");
+    new MainForm().init();
   }
 }
