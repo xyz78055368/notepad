@@ -8,6 +8,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
@@ -20,12 +21,12 @@ import java.nio.charset.CharsetEncoder;
 
 public class MainForm{
 
-  private Frame frame;
+  private JFrame frame;
   private FileDialog fd_load;
   private FileDialog fd_save;
   private TextArea ta;
   private String file = "";
-  private MenuItem m_save;
+  private JMenuItem m_save;
   private RandomAccessFile raf;
   private FileChannel fci;
   private FileLock flock;
@@ -33,11 +34,22 @@ public class MainForm{
   private CharsetDecoder decoder;
 
   public void init(){
-    frame = new Frame("notepad");
-    MenuBar mb = new MenuBar();
-    Menu m_file = new Menu("File");
-    Menu help = new Menu("Help");
-    MenuItem open = new MenuItem("Open");
+    frame = new JFrame("notepad");
+    JMenuBar mb = new JMenuBar();
+    JMenu m_file = new JMenu("File");
+    final JMenu help = new JMenu("Help");
+
+    JMenuItem m_creatorForm = new JMenuItem("制作人员");
+    help.add(m_creatorForm);
+    m_creatorForm.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        HelpForm helpForm = new HelpForm();
+        helpForm.init();
+      }
+    });
+
+    JMenuItem open = new JMenuItem("Open");
     open.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
@@ -56,7 +68,10 @@ public class MainForm{
         }
       }
     });
-    m_save = new MenuItem("Save");
+
+//    open.setAccelerator(KeyEvent.VK_O));
+
+    m_save = new JMenuItem("Save");
     m_save.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
@@ -64,11 +79,24 @@ public class MainForm{
       }
     });
     m_save.setEnabled(true);
+//    m_save.setShortcut(new MenuShortcut(KeyEvent.VK_S));
+
+//    JMenuItem m_saveAs = new JMenuItem("Save as...");
+    JMenuItem m_close = new JMenuItem("close");
+    m_close.addActionListener(new ActionListener() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        System.exit(0);
+      }
+    });
+
     m_file.add(open);
     m_file.add(m_save);
+    m_file.add(m_close);
+//    m_file.add(m_saveAs);
     mb.add(m_file);
     mb.add(help);
-    frame.setMenuBar(mb);
+    frame.setJMenuBar(mb);
     ta = new TextArea();
     frame.add(ta,"Center");
     frame.addWindowListener(new WindowAdapter(){
@@ -118,6 +146,23 @@ public class MainForm{
 
       //文件不存在,则另存为新文件
       fd_save.setVisible(true);
+
+      String d = fd_save.getDirectory();
+      String f = fd_save.getFile();
+
+      if((d != null) && (f != null)){
+        String destfile = d + f;
+        if(destfile.equals(file)){
+          return;
+        }else{
+          try {
+            raf = new RandomAccessFile(destfile,"rw");
+          } catch (FileNotFoundException e) {
+            e.printStackTrace();
+          }
+          fci = raf.getChannel();
+        }
+      }
 
     }else {
       String content = ta.getText();
